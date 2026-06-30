@@ -13,7 +13,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- MOTOR DE JUEGO CON PANTALLA DE INICIO ---
+# --- MOTOR DE JUEGO EVOLUCIONADO CON 10 NIVEL DE DIFICULTAD ---
 juego_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -149,7 +149,6 @@ juego_html = """
             50% { opacity: 1; text-shadow: 0 0 8px #00ffcc; }
         }
 
-        /* --- PANTALLAS FLOTANTES DE INICIO Y FIN --- */
         .pantalla-modal {
             display: flex;
             position: fixed;
@@ -174,9 +173,6 @@ juego_html = """
             text-transform: uppercase;
             transition: transform 0.1s ease;
         }
-        .btn-grande-arcade:active {
-            transform: scale(0.95);
-        }
 
         #confetti-canvas {
             position: fixed;
@@ -190,15 +186,18 @@ juego_html = """
 
     <canvas id="confetti-canvas"></canvas>
 
+    <!-- PANTALLA DE BIENVENIDA -->
     <div id="pantalla-inicio" class="pantalla-modal">
         <h1 style="color: #00ffcc; font-size: 34px; margin: 0 0 10px 0; text-shadow: 0 0 12px #00ffcc;">👾 RETO MONSTRUO</h1>
-        <p style="font-size: 16px; color: #ff007f; margin: 0 0 30px 0; text-transform:uppercase; letter-spacing:1px;">¿Cuántos puedes alimentar en 30s?</p>
+        <p style="font-size: 16px; color: #ff007f; margin: 0 0 30px 0; text-transform:uppercase; letter-spacing:1px;">¡Supera los 10 niveles en 30s!</p>
         <button class="btn-grande-arcade" onclick="comenzarRondaReal()">🎮 INICIAR JUEGO</button>
     </div>
 
+    <!-- PANTALLA DE FIN DE JUEGO -->
     <div id="pantalla-fin" class="pantalla-modal" style="display: none;">
         <h1 style="color: #ff007f; font-size: 42px; margin: 0;">⏱️ ¡TIEMPO!</h1>
-        <p style="font-size: 24px; margin: 15px 0;">Puntuación: <span id="final-puntos" style="color:#fffb00; font-weight:bold;">0</span></p>
+        <p style="font-size: 20px; margin: 10px 0;">Nivel Alcanzado: <span id="final-nivel" style="color:#00ffcc; font-weight:bold;">1</span></p>
+        <p style="font-size: 24px; margin: 5px 0 20px 0;">Puntuación: <span id="final-puntos" style="color:#fffb00; font-weight:bold;">0</span></p>
         <button class="btn-grande-arcade" style="background: linear-gradient(180deg, #ff007f 0%, #b30059 100%); color: white; box-shadow: 0 0 25px #ff007f;" onclick="reiniciarJuego()">🔄 OTRA VEZ</button>
     </div>
 
@@ -206,8 +205,9 @@ juego_html = """
         <div class="tablero-neon">
             <div class="stats-bar">
                 <div>⏱️ Tiempo: <b id="timer" style="color:white;">30</b>s</div>
+                <!-- CAMBIO: Ahora mostramos el Nivel en vivo en la barra superior -->
+                <div style="color: #00ffcc;">⭐ Nivel: <b id="txt-nivel" style="color:white; font-size:16px;">1</b></div>
                 <div>🍪 Panza: <b id="puntos" style="color:white;">0</b></div>
-                <div>🏆 Récord: <b id="record" style="color:white;">0</b></div>
             </div>
             <p class="operacion-titulo" id="operacion-texto">RETO: 2 + 1</p>
         </div>
@@ -242,7 +242,7 @@ juego_html = """
     </div>
 
     <script>
-        let puntos = 0, record = 0, tiempo = 30;
+        let puntos = 0, nivel = 1, tiempo = 30;
         let respuestaCorrecta = 0, opciones = [], juegoActivo = false, cronometro;
         
         const coloresMonster = ['#ff007f', '#2ecc71', '#3498db', '#f1c40f', '#9b59b6', '#e67e22', '#00ffcc'];
@@ -354,18 +354,31 @@ juego_html = """
             }
         }
 
+        // --- SISTEMA DE 10 NIVELES DE DIFICULTAD CORREGIDO ---
         function generarReto() {
-            let n1 = Math.floor(Math.random() * 10) + 1;
-            let n2 = Math.floor(Math.random() * 10) + 1;
-            let op = Math.random() > 0.5 ? '+' : '-';
+            let n1 = 0, n2 = 0, op = '+';
+            
+            // Definición de rangos matemáticos por nivel
+            if (nivel === 1) { n1 = Math.floor(Math.random() * 4) + 1; n2 = Math.floor(Math.random() * 4) + 1; op = '+'; }
+            else if (nivel === 2) { n1 = Math.floor(Math.random() * 7) + 1; n2 = Math.floor(Math.random() * 5) + 1; op = '+'; }
+            else if (nivel === 3) { n1 = Math.floor(Math.random() * 10) + 1; n2 = Math.floor(Math.random() * 8) + 1; op = '+'; }
+            else if (nivel === 4) { n1 = Math.floor(Math.random() * 10) + 1; n2 = Math.floor(Math.random() * 5) + 1; op = '-'; } // Inician restas básicas
+            else if (nivel === 5) { n1 = Math.floor(Math.random() * 15) + 5; n2 = Math.floor(Math.random() * 10) + 1; op = Math.random() > 0.5 ? '+' : '-'; }
+            else if (nivel === 6) { n1 = Math.floor(Math.random() * 20) + 5; n2 = Math.floor(Math.random() * 15) + 5; op = '+'; }
+            else if (nivel === 7) { n1 = Math.floor(Math.random() * 25) + 10; n2 = Math.floor(Math.random() * 15) + 5; op = '-'; }
+            else if (nivel === 8) { n1 = Math.floor(Math.random() * 35) + 10; n2 = Math.floor(Math.random() * 20) + 5; op = Math.random() > 0.5 ? '+' : '-'; }
+            else if (nivel === 9) { n1 = Math.floor(Math.random() * 50) + 15; n2 = Math.floor(Math.random() * 30) + 10; op = Math.random() > 0.5 ? '+' : '-'; }
+            else { n1 = Math.floor(Math.random() * 80) + 20; n2 = Math.floor(Math.random() * 50) + 15; op = Math.random() > 0.5 ? '+' : '-'; } // Nivel 10 Épico
+
             if (op === '-' && n1 < n2) { let t = n1; n1 = n2; n2 = t; }
             respuestaCorrecta = op === '+' ? n1 + n2 : n1 - n2;
             document.getElementById('operacion-texto').innerText = `RETO: ${n1} ${op} ${n2}`;
 
             let falsos = new Set();
+            let rangoFalsos = nivel * 8 + 15; // Los distractores también se vuelven más lógicos según nivel
             while(falsos.size < 3) {
-                let f = Math.floor(Math.random() * 20);
-                if (f !== respuestaCorrecta) falsos.add(f);
+                let f = Math.floor(Math.random() * rangoFalsos);
+                if (f !== respuestaCorrecta && f >= 0) falsos.add(f);
             }
             opciones = Array.from(falsos); opciones.push(respuestaCorrecta);
             opciones.sort(() => Math.random() - 0.5);
@@ -376,7 +389,6 @@ juego_html = """
             }
         }
 
-        // --- MANEJO DE TIEMPO OFICIAL ---
         function iniciarCronometro() {
             cronometro = setInterval(() => {
                 if (!juegoActivo) return;
@@ -397,8 +409,17 @@ juego_html = """
             if (!juegoActivo) return;
             let tarjeta = document.getElementsByClassName('tarjeta-arcade')[indice];
             if (opciones[indice] === respuestaCorrecta) {
-                puntos++; document.getElementById('puntos').innerText = puntos;
-                if (puntos > record) { record = puntos; document.getElementById('record').innerText = record; }
+                puntos++; 
+                document.getElementById('puntos').innerText = puntos;
+                
+                // SISTEMA AUTOMÁTICO DE SUBIDA DE NIVEL (Cada 3 aciertos sube 1 nivel hasta el 10)
+                let nuevoNivel = Math.floor(puntos / 3) + 1;
+                if (nuevoNivel > 10) nuevoNivel = 10;
+                if (nuevoNivel !== nivel) {
+                    nivel = nuevoNivel;
+                    document.getElementById('txt-nivel').innerText = nivel;
+                }
+
                 sonar('correcto'); lanzarConfeti();
                 tarjeta.classList.add('correcto-impacto');
                 setTimeout(() => { tarjeta.classList.remove('correcto-impacto'); generarReto(); }, 120);
@@ -413,19 +434,20 @@ juego_html = """
             clearInterval(cronometro);
             sonar('fin');
             document.getElementById('final-puntos').innerText = puntos;
+            document.getElementById('final-nivel').innerText = nivel;
             document.getElementById('pantalla-fin').style.display = 'flex';
         }
 
         function reiniciarJuego() {
-            puntos = 0; tiempo = 30; juegoActivo = true;
+            puntos = 0; tiempo = 30; nivel = 1; juegoActivo = true;
             document.getElementById('puntos').innerText = puntos;
             document.getElementById('timer').innerText = tiempo;
+            document.getElementById('txt-nivel').innerText = nivel;
             document.getElementById('pantalla-fin').style.display = 'none';
             generarReto();
             iniciarCronometro();
         }
 
-        // Carga silenciosa en el fondo para que esté listo al picar iniciar
         generarReto();
     </script>
 </body>
