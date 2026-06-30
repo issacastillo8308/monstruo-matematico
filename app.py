@@ -13,7 +13,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- MOTOR DE JUEGO SUPREMO CON PORTADA DE LUJO Y MARCADOR DESGLOSADO ---
+# --- MOTOR DE JUEGO SUPREMO CON PORTADA DE LUJO Y MONSTRUOS HERMOSOS ---
 juego_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -181,22 +181,22 @@ juego_html = """
         /* Estilos de la Portada Bonita */
         .caja-portada {
             border: 4px dashed #00ffcc;
-            padding: 30px 20px;
+            padding: 25px 15px;
             border-radius: 30px;
-            background: rgba(20, 15, 45, 0.6);
-            box-shadow: 0 0 25px rgba(0,255,204,0.3);
+            background: rgba(20, 15, 45, 0.85);
+            box-shadow: 0 0 25px rgba(0,255,204,0.4);
+            min-width: 300px;
             max-width: 340px;
-            position: relative;
         }
         .decoracion-monstruos {
             display: flex;
             justify-content: space-around;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .mini-monster {
-            width: 65px;
-            height: 65px;
+            width: 80px;
+            height: 80px;
             animation: bounce 1.2s infinite ease-in-out;
         }
 
@@ -249,24 +249,30 @@ juego_html = """
         <div class="caja-portada">
             <div class="decoracion-monstruos">
                 <svg class="mini-monster" viewBox="0 0 100 100" style="animation-delay:0s;">
-                    <path d="M 30 36 Q 14 10 26 6 Z" fill="#ff007f" stroke="#111" stroke-width="2"/>
-                    <ellipse cx="50" cy="55" rx="35" ry="32" fill="#ff007f" stroke="#111" stroke-width="3"/>
-                    <circle cx="50" cy="45" r="10" fill="white" stroke="#111" stroke-width="2"/>
-                    <circle cx="50" cy="45" r="4" fill="black"/>
+                    <path d="M 30 36 Q 10 12 24 6 Q 36 16 34 34" fill="#d0006c" stroke="#111" stroke-width="2"/>
+                    <ellipse cx="50" cy="55" rx="36" ry="33" fill="#ff007f" stroke="#111" stroke-width="3"/>
+                    <ellipse cx="26" cy="62" rx="6" ry="4" fill="#ff66b2" opacity="0.7"/>
+                    <ellipse cx="74" cy="62" rx="6" ry="4" fill="#ff66b2" opacity="0.7"/>
+                    <circle cx="50" cy="45" r="13" fill="white" stroke="#111" stroke-width="2.5"/>
+                    <circle cx="50" cy="45" r="5" fill="black"/>
+                    <circle cx="47" cy="42" r="2" fill="white"/> <path d="M 38 66 Q 50 76 62 66" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
                 </svg>
-                <svg class="mini-monster" viewBox="0 0 100 100" style="animation-delay:0.4s;">
-                    <path d="M 70 36 Q 86 10 74 6 Z" fill="#2ecc71" stroke="#111" stroke-width="2"/>
-                    <ellipse cx="50" cy="55" rx="35" ry="32" fill="#2ecc71" stroke="#111" stroke-width="3"/>
-                    <circle cx="38" cy="45" r="8" fill="white" stroke="#111" stroke-width="2"/>
-                    <circle cx="38" cy="45" r="3" fill="black"/>
-                    <circle cx="62" cy="45" r="8" fill="white" stroke="#111" stroke-width="2"/>
-                    <circle cx="62" cy="45" r="3" fill="black"/>
+                <svg class="mini-monster" viewBox="0 0 100 100" style="animation-delay:0.3s;">
+                    <path d="M 66 36 Q 86 12 74 6 Q 62 16 64 34" fill="#229954" stroke="#111" stroke-width="2"/>
+                    <ellipse cx="50" cy="55" rx="36" ry="33" fill="#2ecc71" stroke="#111" stroke-width="3"/>
+                    <ellipse cx="26" cy="62" rx="6" ry="4" fill="#a3e4d7" opacity="0.8"/>
+                    <ellipse cx="74" cy="62" rx="6" ry="4" fill="#a3e4d7" opacity="0.8"/>
+                    <circle cx="35" cy="45" r="9" fill="white" stroke="#111" stroke-width="2"/>
+                    <circle cx="35" cy="45" r="3.5" fill="black"/><circle cx="33" cy="43" r="1.5" fill="white"/>
+                    <circle cx="65" cy="45" r="9" fill="white" stroke="#111" stroke-width="2"/>
+                    <circle cx="65" cy="45" r="3.5" fill="black"/><circle cx="63" cy="43" r="1.5" fill="white"/>
+                    <path d="M 36 66 Q 50 78 64 66" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
                 </svg>
             </div>
             
             <h1 style="color: #00ffcc; font-size: 36px; margin: 0 0 5px 0; text-shadow: 0 0 15px #00ffcc; font-weight:900;">RETO<br>MONSTRUO</h1>
             <p style="font-size: 13px; color: #fffb00; margin: 0 0 25px 0; letter-spacing:1.5px; text-transform:uppercase;">Arcade Matemático</p>
-            <button class="btn-grande-arcade" onclick="comenzarRondaReal()">🎮 JUGAR NOW</button>
+            <button class="btn-grande-arcade" onclick="comenzarRondaReal()">🎮 JUGAR AHORA</button>
         </div>
     </div>
 
@@ -275,7 +281,7 @@ juego_html = """
         
         <div class="tabla-resultados">
             <div class="fila-res">
-                <span style="color:#7f7f99;">⭐ NIVEL:</span>
+                <span style="color:#7f7f99;">⭐ NIVEL ACCEDIDO:</span>
                 <span id="final-nivel" style="color:#00ffcc; font-weight:bold;">1</span>
             </div>
             <div class="fila-res">
@@ -288,7 +294,7 @@ juego_html = """
             </div>
         </div>
 
-        <button class="btn-grande-arcade" style="background: linear-gradient(180deg, #ff007f 0%, #b30059 100%); color: white; box-shadow: 0 0 25px #ff007f;" onclick="reiniciarJuego()">🔄 VOLVER A INTENTAR</button>
+        <button class="btn-grande-arcade" style="background: linear-gradient(180deg, #ff007f 0%, #b30059 100%); color: white; box-shadow: 0 0 25px #ff007f;" onclick="reiniciarJuego()">🔄 OTRA VEZ</button>
     </div>
 
     <div class="game-wrapper">
@@ -337,7 +343,7 @@ juego_html = """
         let puntos = 0, nivel = 1, tiempo = 20, errores = 0; 
         let puntosEnNivelActual = 0; 
         let respuestaCorrecta = 0, opciones = [], juegoActivo = false, cronometro;
-        let contadorErroresTotales = 0; // Registro global para la ventana final
+        let contadorErroresTotales = 0; 
         
         const coloresMonster = ['#ff007f', '#2ecc71', '#3498db', '#f1c40f', '#9b59b6', '#e67e22', '#00ffcc'];
         
@@ -395,6 +401,8 @@ juego_html = """
                     ${cuernosSVG}
                     <ellipse cx="50" cy="58" rx="28" ry="26" fill="${colorCuerpo}" stroke="#111" stroke-width="3.5"/>
                     <path d="M 44 33 L 50 25 L 56 33" fill="${colorCuerpo}" stroke="#111" stroke-width="2.5"/>
+                    <ellipse cx="36" cy="62" rx="4" ry="2.5" fill="rgba(255,255,255,0.3)"/>
+                    <ellipse cx="64" cy="62" rx="4" ry="2.5" fill="rgba(255,255,255,0.3)"/>
                     ${ojosSVG}
                     <path d="M 38 66 Q 50 76 62 66" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
                     <path d="M 43 67 L 45 72 L 47 67 Z M 53 67 L 55 72 L 57 67 Z" fill="white"/>
@@ -539,7 +547,7 @@ juego_html = """
                 setTimeout(() => { tarjeta.classList.remove('correcto-impacto'); generarReto(); }, 120);
             } else {
                 errores++;
-                contadorErroresTotales++; // Registra para el desglose final
+                contadorErroresTotales++; 
                 actualizarVidasVisuales();
                 sonar('incorrecto'); 
                 tarjeta.classList.add('incorrecto-impacto');
@@ -565,7 +573,6 @@ juego_html = """
                 document.getElementById('txt-fin-titulo').style.color = "#ff007f";
             }
 
-            // CAMBIO CLAVE: Desglose completo de resultados en la ventana
             document.getElementById('final-aciertos').innerText = puntos;
             document.getElementById('final-errores').innerText = contadorErroresTotales;
             document.getElementById('final-nivel').innerText = nivel;
