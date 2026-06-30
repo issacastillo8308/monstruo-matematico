@@ -13,7 +13,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- MOTOR DE JUEGO CON 20 SEGUNDOS POR NIVEL ---
+# --- MOTOR DE JUEGO ULTRA PREMIUM CON ERRORES, SONIDO DE VICTORIA Y CONFETI MASIVO ---
 juego_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -54,11 +54,12 @@ juego_html = """
         }
         .stats-bar {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
             font-size: 13px;
             color: #fffb00;
             text-transform: uppercase;
+            margin-bottom: 5px;
         }
         .operacion-titulo {
             font-size: 44px;
@@ -66,6 +67,21 @@ juego_html = """
             margin: 8px 0 0 0;
             font-weight: 900;
             text-shadow: 0 0 12px #00ffcc;
+        }
+
+        /* Marcador de Vidas / Errores */
+        .vidas-container {
+            font-size: 15px;
+            color: #ff3333;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .x-activa {
+            animation: blinkX 0.3s ease-in-out;
+        }
+        @keyframes blinkX {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 red); }
+            50% { transform: scale(1.3); filter: drop-shadow(0 0 8px red); }
         }
 
         /* Rejilla 2x2 */
@@ -171,7 +187,6 @@ juego_html = """
             box-shadow: 0 0 25px #00ffcc;
             letter-spacing: 1px;
             text-transform: uppercase;
-            transition: transform 0.1s ease;
         }
 
         #confetti-canvas {
@@ -186,28 +201,28 @@ juego_html = """
 
     <canvas id="confetti-canvas"></canvas>
 
-    <!-- PANTALLA DE BIENVENIDA -->
     <div id="pantalla-inicio" class="pantalla-modal">
         <h1 style="color: #00ffcc; font-size: 34px; margin: 0 0 10px 0; text-shadow: 0 0 12px #00ffcc;">👾 RETO MONSTRUO</h1>
-        <p style="font-size: 15px; color: #ff007f; margin: 0 0 30px 0; text-transform:uppercase; letter-spacing:1px;">¡Tienes sólo 20s por nivel!</p>
+        <p style="font-size: 15px; color: #ff007f; margin: 0 0 30px 0; text-transform:uppercase; letter-spacing:1px;">¡20s por nivel! Cuidado con los errores.</p>
         <button class="btn-grande-arcade" onclick="comenzarRondaReal()">🎮 INICIAR JUEGO</button>
     </div>
 
-    <!-- PANTALLA DE FIN DE JUEGO -->
     <div id="pantalla-fin" class="pantalla-modal" style="display: none;">
-        <h1 style="color: #ff007f; font-size: 42px; margin: 0; text-shadow: 0 0 15px #ff007f;">⏱️ ¡TIEMPO!</h1>
+        <h1 id="txt-fin-titulo" style="color: #ff007f; font-size: 42px; margin: 0; text-shadow: 0 0 15px #ff007f;">⏱️ ¡TIEMPO!</h1>
         <p style="font-size: 20px; margin: 10px 0;">Nivel Alcanzado: <span id="final-nivel" style="color:#00ffcc; font-weight:bold;">1</span></p>
         <p style="font-size: 24px; margin: 5px 0 20px 0;">Total Galletas: <span id="final-puntos" style="color:#fffb00; font-weight:bold;">0</span></p>
-        <button class="btn-grande-arcade" style="background: linear-gradient(180deg, #ff007f 0%, #b30059 100%); color: white; box-shadow: 0 0 25px #ff007f;" onclick="reiniciarJuego()">🔄 VOLVER A INTENTAR</button>
+        <button class="btn-grande-arcade" style="background: linear-gradient(180deg, #ff007f 0%, #b30059 100%); color: white; box-shadow: 0 0 25px #ff007f;" onclick="reiniciarJuego()"> Volver a Intentar</button>
     </div>
 
     <div class="game-wrapper">
         <div class="tablero-neon">
             <div class="stats-bar">
-                <!-- Mostramos los 20 segundos dinámicos -->
                 <div>⏱️ Reloj: <b id="timer" style="color:#ff007f; font-size:16px;">20</b>s</div>
                 <div style="color: #00ffcc;">⭐ Nivel: <b id="txt-nivel" style="color:white; font-size:16px;">1</b></div>
+            </div>
+            <div class="stats-bar" style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 5px; margin-top: 5px;">
                 <div>🍪 Galletas: <b id="puntos" style="color:white;">0</b></div>
+                <div class="vidas-container">❌ <span id="error-slots">_ _ _</span></div>
             </div>
             <p class="operacion-titulo" id="operacion-texto">RETO: 2 + 1</p>
         </div>
@@ -242,8 +257,8 @@ juego_html = """
     </div>
 
     <script>
-        let puntos = 0, nivel = 1, tiempo = 20; // CAMBIO: Iniciamos en 20s
-        let puntosEnNivelActual = 0; // Lleva el conteo de los 3 aciertos del nivel
+        let puntos = 0, nivel = 1, tiempo = 20, errores = 0; 
+        let puntosEnNivelActual = 0; 
         let respuestaCorrecta = 0, opciones = [], juegoActivo = false, cronometro;
         
         const coloresMonster = ['#ff007f', '#2ecc71', '#3498db', '#f1c40f', '#9b59b6', '#e67e22', '#00ffcc'];
@@ -310,25 +325,26 @@ juego_html = """
             document.getElementById(idContenedor).innerHTML = svgCompleto;
         }
 
+        // --- SISTEMA DE CONFETI OPTIMIZADO ---
         const canvas = document.getElementById('confetti-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeCanvas); resizeCanvas();
 
-        function lanzarConfeti() {
-            for (let i = 0; i < 35; i++) {
+        function lanzarConfeti(cantidad) {
+            for (let i = 0; i < cantidad; i++) {
                 particles.push({
                     x: window.innerWidth / 2, y: window.innerHeight / 2,
-                    angle: Math.random() * Math.PI * 2, speed: Math.random() * 6 + 4,
-                    color: `hsl(${Math.random() * 360}, 100%, 60%)`, r: Math.random() * 4 + 3, d: 25
+                    angle: Math.random() * Math.PI * 2, speed: Math.random() * 8 + 4,
+                    color: `hsl(${Math.random() * 360}, 100%, 60%)`, r: Math.random() * 4 + 3, d: cantidad > 50 ? 55 : 25
                 });
             }
         }
         function drawParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach((p, idx) => {
-                p.x += Math.cos(p.angle) * p.speed; p.y += Math.sin(p.angle) * p.speed + 1.5; p.d--;
+                p.x += Math.cos(p.angle) * p.speed; p.y += Math.sin(p.angle) * p.speed + 1.2; p.d--;
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.fill();
                 if (p.d <= 0) particles.splice(idx, 1);
             });
@@ -336,29 +352,38 @@ juego_html = """
         }
         drawParticles();
 
+        // --- SINTETIZADOR DE AUDIO ARCADE ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function sonar(tipo) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
+            
             if (tipo === 'correcto') {
                 osc.type = 'triangle'; osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
                 osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.05);
-                gain.gain.setValueAtTime(0.12, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.18);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.15);
             } else if (tipo === 'incorrecto') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 0.12);
-                gain.gain.setValueAtTime(0.12, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.12);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            } else if (tipo === 'victoria') {
+                // Fanfarria de victoria ascendente rápida estilo Mario Bros
+                osc.type = 'square';
+                let notas = [523.25, 659.25, 783.99, 1046.50]; // Do, Mi, Sol, Do alto
+                notas.forEach((f, i) => {
+                    osc.frequency.setValueAtTime(f, audioCtx.currentTime + (i * 0.08));
+                });
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             } else if (tipo === 'fin') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(293.66, audioCtx.currentTime);
+                osc.type = 'square'; osc.frequency.setValueAtTime(220, audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.15, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             }
         }
 
-        // --- SISTEMA MATEMÁTICO ESCALABLE ---
+        // --- CONFIGURACIÓN DE DIFICULTAD ---
         function generarReto() {
             let n1 = 0, n2 = 0, op = '+';
-            
             if (nivel === 1) { n1 = Math.floor(Math.random() * 4) + 1; n2 = Math.floor(Math.random() * 4) + 1; op = '+'; }
             else if (nivel === 2) { n1 = Math.floor(Math.random() * 7) + 1; n2 = Math.floor(Math.random() * 5) + 1; op = '+'; }
             else if (nivel === 3) { n1 = Math.floor(Math.random() * 10) + 1; n2 = Math.floor(Math.random() * 8) + 1; op = '+'; }
@@ -394,60 +419,96 @@ juego_html = """
                 if (!juegoActivo) return;
                 tiempo--;
                 document.getElementById('timer').innerText = tiempo;
-                if (tiempo <= 0) finalizarRonda();
+                if (tiempo <= 0) finalizarRonda("tiempo");
             }, 1000);
         }
 
         function comenzarRondaReal() {
             document.getElementById('pantalla-inicio').style.display = 'none';
             juegoActivo = true;
-            tiempo = 20; // Asegura arrancar en 20s
+            tiempo = 20;
             generarReto();
             iniciarCronometro();
+        }
+
+        // --- MANEJO DE ERRORES VISUALES ---
+        function actualizarVidasVisuales() {
+            let str = "";
+            for(let i=1; i<=3; i++) {
+                if(i <= errores) str += "<span class='x-activa'>X</span> ";
+                else str += "_ ";
+            }
+            document.getElementById('error-slots').innerHTML = str.trim();
         }
 
         function tocarMonstruo(indice) {
             if (!juegoActivo) return;
             let tarjeta = document.getElementsByClassName('tarjeta-arcade')[indice];
+            
             if (opciones[indice] === respuestaCorrecta) {
                 puntos++; 
                 puntosEnNivelActual++;
                 document.getElementById('puntos').innerText = puntos;
                 
-                // CAMBIO: Si junta 3 aciertos en este nivel, sube y se REINICIA el reloj a 20s
+                // SI PASA DE NIVEL (3 aciertos)
                 if (puntosEnNivelActual >= 3) {
                     if (nivel < 10) {
                         nivel++;
                         puntosEnNivelActual = 0;
-                        tiempo = 20; // REINICIO DEL RELOJ ⏱️🔥
+                        tiempo = 20; 
                         document.getElementById('txt-nivel').innerText = nivel;
                         document.getElementById('timer').innerText = tiempo;
+                        
+                        // EFECTOS NUEVOS DE VICTORIA POR NIVEL
+                        sonar('victoria'); 
+                        lanzarConfeti(120); // ¡Tormenta enorme de confeti!
                     }
+                } else {
+                    // Confeti chiquito normal por acierto regular
+                    sonar('correcto'); lanzarConfeti(30);
                 }
 
-                sonar('correcto'); lanzarConfeti();
                 tarjeta.classList.add('correcto-impacto');
                 setTimeout(() => { tarjeta.classList.remove('correcto-impacto'); generarReto(); }, 120);
             } else {
-                sonar('incorrecto'); tarjeta.classList.add('incorrecto-impacto');
-                setTimeout(() => tarjeta.classList.remove('incorrecto-impacto'), 180);
+                // REGISTRO DE ERROR NUEVO
+                errores++;
+                actualizarVidasVisuales();
+                sonar('incorrecto'); 
+                tarjeta.classList.add('incorrecto-impacto');
+                
+                if (errores >= 3) {
+                    setTimeout(() => { tarjeta.classList.remove('incorrecto-impacto'); finalizarRonda("errores"); }, 200);
+                } else {
+                    setTimeout(() => tarjeta.classList.remove('incorrecto-impacto'), 180);
+                }
             }
         }
 
-        function finalizarRonda() {
+        function finalizarRonda(motivo) {
             juegoActivo = false;
             clearInterval(cronometro);
             sonar('fin');
+            
+            if(motivo === "errores") {
+                document.getElementById('txt-fin-titulo').innerText = "❌ ¡GAME OVER!";
+                document.getElementById('txt-fin-titulo').style.color = "#ff3333";
+            } else {
+                document.getElementById('txt-fin-titulo').innerText = "⏱️ ¡TIEMPO!";
+                document.getElementById('txt-fin-titulo').style.color = "#ff007f";
+            }
+
             document.getElementById('final-puntos').innerText = puntos;
             document.getElementById('final-nivel').innerText = nivel;
             document.getElementById('pantalla-fin').style.display = 'flex';
         }
 
         function reiniciarJuego() {
-            puntos = 0; nivel = 1; tiempo = 20; puntosEnNivelActual = 0; juegoActivo = true;
+            puntos = 0; nivel = 1; tiempo = 20; puntosEnNivelActual = 0; errores = 0; juegoActivo = true;
             document.getElementById('puntos').innerText = puntos;
             document.getElementById('timer').innerText = tiempo;
             document.getElementById('txt-nivel').innerText = nivel;
+            actualizarVidasVisuales();
             document.getElementById('pantalla-fin').style.display = 'none';
             generarReto();
             clearInterval(cronometro);
