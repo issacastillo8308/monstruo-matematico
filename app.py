@@ -13,7 +13,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- MOTOR DE JUEGO CON BRAZOS, PATAS Y CUERNOS ---
+# --- MOTOR DE JUEGO CON TU FIRMA OFICIAL ---
 juego_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -121,6 +121,20 @@ juego_html = """
         .correcto-impacto { background: #2ecc71 !important; box-shadow: 0 0 20px #2ecc71 !important; }
         .incorrecto-impacto { background: #e74c3c !important; box-shadow: 0 0 20px #e74c3c !important; }
 
+        /* Estilo para tus créditos actualizados */
+        .creditos-autora {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #7f7f99;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .creditos-autora span {
+            color: #00ffcc;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 255, 204, 0.4);
+        }
+
         .game-over-screen {
             display: none;
             position: fixed;
@@ -187,6 +201,11 @@ juego_html = """
                 <div class="badge-numero" id="opt-3">?</div>
             </div>
         </div>
+
+        <!-- AQUÍ SE MUESTRAN TUS NUEVOS CRÉDITOS OFICIALES -->
+        <div class="creditos-autora">
+            Creado con 💜 por <span>Profa. Issa Castillo</span>
+        </div>
     </div>
 
     <script>
@@ -195,17 +214,14 @@ juego_html = """
         
         const coloresMonster = ['#ff007f', '#2ecc71', '#3498db', '#f1c40f', '#9b59b6', '#e67e22', '#00ffcc'];
         
-        // --- NUEVO GENERADOR DE MONSTRUOS CON EXTREMIDADES REALES ---
         function generarMonsterSVG(idContenedor) {
             const colorCuerpo = coloresMonster[Math.floor(Math.random() * coloresMonster.length)];
             const colorCuernos = coloresMonster[Math.floor(Math.random() * coloresMonster.length)];
             const tipoOjos = Math.random() > 0.4 ? 2 : 1; 
-            const estiloBrazos = Math.floor(Math.random() * 2); // 0: Abiertos arriba, 1: A los lados
+            const estiloBrazos = Math.floor(Math.random() * 2); 
             
-            // 1. Brazos definidos con manos/garras
             let brazosSVG = '';
             if (estiloBrazos === 0) {
-                // Brazos saludando hacia arriba
                 brazosSVG = `
                     <path d="M 20 55 Q 5 35 12 20" fill="none" stroke="${colorCuerpo}" stroke-width="10" stroke-linecap="round"/>
                     <circle cx="12" cy="18" r="6" fill="${colorCuernos}"/>
@@ -213,7 +229,6 @@ juego_html = """
                     <circle cx="88" cy="18" r="6" fill="${colorCuernos}"/>
                 `;
             } else {
-                // Brazos extendidos con garras de 3 picos
                 brazosSVG = `
                     <path d="M 25 60 L 5 60" fill="none" stroke="${colorCuerpo}" stroke-width="11" stroke-linecap="round"/>
                     <path d="M 5 54 L 2 60 L 5 66" fill="none" stroke="${colorCuernos}" stroke-width="3"/>
@@ -222,7 +237,6 @@ juego_html = """
                 `;
             }
 
-            // 2. Patas robustas abajo
             let patasSVG = `
                 <rect x="30" y="78" width="12" height="15" rx="5" fill="${colorCuerpo}" stroke="#111" stroke-width="2"/>
                 <ellipse cx="32" cy="92" rx="9" ry="5" fill="${colorCuernos}" stroke="#111" stroke-width="2"/>
@@ -230,13 +244,11 @@ juego_html = """
                 <ellipse cx="68" cy="92" rx="9" ry="5" fill="${colorCuernos}" stroke="#111" stroke-width="2"/>
             `;
 
-            // 3. Cuernos grandes estilo caricatura peluda
             let cuernosSVG = `
                 <path d="M 30 36 Q 14 10 26 6 Q 34 18 36 34" fill="${colorCuernos}" stroke="#111" stroke-width="3"/>
                 <path d="M 70 36 Q 86 10 74 6 Q 66 18 64 34" fill="${colorCuernos}" stroke="#111" stroke-width="3"/>
             `;
 
-            // 4. Ojos
             let ojosSVG = '';
             if (tipoOjos === 1) {
                 ojosSVG = `<circle cx="50" cy="46" r="15" fill="white" stroke="#111" stroke-width="3"/>
@@ -264,7 +276,6 @@ juego_html = """
             document.getElementById(idContenedor).innerHTML = svgCompleto;
         }
 
-        // --- CONFETI ---
         const canvas = document.getElementById('confetti-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -291,7 +302,6 @@ juego_html = """
         }
         drawParticles();
 
-        // --- SONIDOS ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function sonar(tipo) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -369,4 +379,4 @@ juego_html = """
 </html>
 """
 
-st.components.v1.html(juego_html, height=560, scrolling=False)
+st.components.v1.html(juego_html, height=580, scrolling=False)
