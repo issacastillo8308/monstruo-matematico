@@ -13,21 +13,21 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- MOTOR DE JUEGO ULTRA-DYNAMIC CON MONSTRUOS CON PELO Y MUTACIONES ---
+# --- MOTOR DE JUEGO CON BRAZOS, PATAS Y CUERNOS ---
 juego_html = """
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monstruos Mutantes Arcade</title>
+    <title>Monstruos con Patas y Brazos</title>
     <style>
         body {
             font-family: 'Arial Rounded MT Bold', sans-serif;
             background-color: #09070f;
             background-image: 
-                linear-gradient(rgba(0, 255, 204, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 204, 0.05) 1px, transparent 1px);
+                linear-gradient(rgba(255, 0, 127, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 0, 127, 0.05) 1px, transparent 1px);
             background-size: 30px 30px;
             color: white;
             text-align: center;
@@ -79,7 +79,7 @@ juego_html = """
             background: #130f26;
             border: 3px solid #362563;
             border-radius: 22px;
-            padding: 12px 5px;
+            padding: 15px 5px;
             cursor: pointer;
             box-shadow: 0 6px 0 #05030f;
             transition: all 0.05s ease;
@@ -92,18 +92,18 @@ juego_html = """
             box-shadow: 0 2px 0 #05030f;
         }
 
-        /* Contenedor del Monstruo Animado */
+        /* Contenedor Animado */
         .svg-container {
-            width: 110px;
-            height: 110px;
+            width: 115px;
+            height: 115px;
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: bounce 1.8s infinite ease-in-out;
+            animation: bounce 1.5s infinite ease-in-out;
         }
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-4px) scale(1.03); }
         }
 
         .badge-numero {
@@ -166,7 +166,7 @@ juego_html = """
                 <div>🍪 Panza: <b id="puntos" style="color:white;">0</b></div>
                 <div>🏆 Récord: <b id="record" style="color:white;">0</b></div>
             </div>
-            <p class="operacion-titulo" id="operacion-texto">RETO: 6 + 6</p>
+            <p class="operacion-titulo" id="operacion-texto">RETO: 2 + 1</p>
         </div>
 
         <div class="grid-monstruos">
@@ -175,15 +175,15 @@ juego_html = """
                 <div class="badge-numero" id="opt-0">?</div>
             </div>
             <div class="tarjeta-arcade" onclick="tocarMonstruo(1)">
-                <div class="svg-container" id="avatar-1" style="animation-delay: 0.3s;"></div>
+                <div class="svg-container" id="avatar-1" style="animation-delay: 0.2s;"></div>
                 <div class="badge-numero" id="opt-1">?</div>
             </div>
             <div class="tarjeta-arcade" onclick="tocarMonstruo(2)">
-                <div class="svg-container" id="avatar-2" style="animation-delay: 0.6s;"></div>
+                <div class="svg-container" id="avatar-2" style="animation-delay: 0.4s;"></div>
                 <div class="badge-numero" id="opt-2">?</div>
             </div>
             <div class="tarjeta-arcade" onclick="tocarMonstruo(3)">
-                <div class="svg-container" id="avatar-3" style="animation-delay: 0.9s;"></div>
+                <div class="svg-container" id="avatar-3" style="animation-delay: 0.6s;"></div>
                 <div class="badge-numero" id="opt-3">?</div>
             </div>
         </div>
@@ -193,64 +193,72 @@ juego_html = """
         let puntos = 0, record = 0, tiempo = 30;
         let respuestaCorrecta = 0, opciones = [], juegoActivo = true, cronometro;
         
-        // Paletas de colores neón e hilos para simular pelaje
         const coloresMonster = ['#ff007f', '#2ecc71', '#3498db', '#f1c40f', '#9b59b6', '#e67e22', '#00ffcc'];
         
-        // --- GENERADOR DE MONSTRUOS CON PELO Y CUERNOS MUTANTES ---
+        // --- NUEVO GENERADOR DE MONSTRUOS CON EXTREMIDADES REALES ---
         function generarMonsterSVG(idContenedor) {
             const colorCuerpo = coloresMonster[Math.floor(Math.random() * coloresMonster.length)];
             const colorCuernos = coloresMonster[Math.floor(Math.random() * coloresMonster.length)];
-            const tipoOjos = Math.random() > 0.5 ? 2 : 1; // 1 ojo o 2 ojos locos
-            const estiloCuernos = Math.floor(Math.random() * 3); // 3 formas de cuernos distintos
+            const tipoOjos = Math.random() > 0.4 ? 2 : 1; 
+            const estiloBrazos = Math.floor(Math.random() * 2); // 0: Abiertos arriba, 1: A los lados
             
-            let cuernosSVG = '';
-            if (estiloCuernos === 0) {
-                // Cuernos puntiagudos hacia arriba
-                cuernosSVG = `<path d="M 22 35 L 12 12 Q 25 20 28 32 Z M 78 35 L 88 12 Q 75 20 72 32 Z" fill="${colorCuernos}" stroke="#111" stroke-width="3"/>`;
-            } else if (estiloCuernos === 1) {
-                // Cuernos curveados de toro
-                cuernosSVG = `<path d="M 20 40 Q -2 20 10 5 L 18 20 Z M 80 40 Q 102 20 90 5 L 82 20 Z" fill="${colorCuernos}" stroke="#111" stroke-width="3"/>`;
+            // 1. Brazos definidos con manos/garras
+            let brazosSVG = '';
+            if (estiloBrazos === 0) {
+                // Brazos saludando hacia arriba
+                brazosSVG = `
+                    <path d="M 20 55 Q 5 35 12 20" fill="none" stroke="${colorCuerpo}" stroke-width="10" stroke-linecap="round"/>
+                    <circle cx="12" cy="18" r="6" fill="${colorCuernos}"/>
+                    <path d="M 80 55 Q 95 35 88 20" fill="none" stroke="${colorCuerpo}" stroke-width="10" stroke-linecap="round"/>
+                    <circle cx="88" cy="18" r="6" fill="${colorCuernos}"/>
+                `;
             } else {
-                // Antenitas con esferas
-                cuernosSVG = `<rect x="25" y="10" width="6" height="25" rx="3" fill="${colorCuernos}" stroke="#111" stroke-width="2"/>
-                              <circle cx="28" cy="8" r="7" fill="#fff" stroke="#111" stroke-width="2"/>
-                              <rect x="69" y="10" width="6" height="25" rx="3" fill="${colorCuernos}" stroke="#111" stroke-width="2"/>
-                              <circle cx="72" cy="8" r="7" fill="#fff" stroke="#111" stroke-width="2"/>`;
+                // Brazos extendidos con garras de 3 picos
+                brazosSVG = `
+                    <path d="M 25 60 L 5 60" fill="none" stroke="${colorCuerpo}" stroke-width="11" stroke-linecap="round"/>
+                    <path d="M 5 54 L 2 60 L 5 66" fill="none" stroke="${colorCuernos}" stroke-width="3"/>
+                    <path d="M 75 60 L 95 60" fill="none" stroke="${colorCuerpo}" stroke-width="11" stroke-linecap="round"/>
+                    <path d="M 95 54 L 98 60 L 95 66" fill="none" stroke="${colorCuernos}" stroke-width="3"/>
+                `;
             }
 
-            // Generar picos/pelos en el borde de la silueta del cuerpo
-            let pelosSilueta = '';
-            for(let a=0; a<360; a+=15) {
-                let rad = a * Math.PI / 180;
-                let x1 = 50 + Math.cos(rad) * 34;
-                let y1 = 58 + Math.sin(rad) * 32;
-                let x2 = 50 + Math.cos(rad) * 42;
-                let y2 = 58 + Math.sin(rad) * 39;
-                pelosSilueta += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${colorCuerpo}" stroke-width="5" stroke-linecap="round"/>`;
-            }
+            // 2. Patas robustas abajo
+            let patasSVG = `
+                <rect x="30" y="78" width="12" height="15" rx="5" fill="${colorCuerpo}" stroke="#111" stroke-width="2"/>
+                <ellipse cx="32" cy="92" rx="9" ry="5" fill="${colorCuernos}" stroke="#111" stroke-width="2"/>
+                <rect x="58" y="78" width="12" height="15" rx="5" fill="${colorCuerpo}" stroke="#111" stroke-width="2"/>
+                <ellipse cx="68" cy="92" rx="9" ry="5" fill="${colorCuernos}" stroke="#111" stroke-width="2"/>
+            `;
 
-            // Ojos
+            // 3. Cuernos grandes estilo caricatura peluda
+            let cuernosSVG = `
+                <path d="M 30 36 Q 14 10 26 6 Q 34 18 36 34" fill="${colorCuernos}" stroke="#111" stroke-width="3"/>
+                <path d="M 70 36 Q 86 10 74 6 Q 66 18 64 34" fill="${colorCuernos}" stroke="#111" stroke-width="3"/>
+            `;
+
+            // 4. Ojos
             let ojosSVG = '';
             if (tipoOjos === 1) {
-                ojosSVG = `<circle cx="50" cy="48" r="15" fill="white" stroke="#111" stroke-width="3"/>
-                           <circle cx="50" cy="48" r="6" fill="black"/>
-                           <circle cx="47" cy="45" r="2" fill="white"/>`;
+                ojosSVG = `<circle cx="50" cy="46" r="15" fill="white" stroke="#111" stroke-width="3"/>
+                           <circle cx="50" cy="46" r="6" fill="black"/>
+                           <circle cx="47" cy="43" r="2" fill="white"/>`;
             } else {
-                ojosSVG = `<circle cx="36" cy="48" r="11" fill="white" stroke="#111" stroke-width="2.5"/>
-                           <circle cx="36" cy="48" r="4.5" fill="black"/>
-                           <circle cx="64" cy="48" r="11" fill="white" stroke="#111" stroke-width="2.5"/>
-                           <circle cx="64" cy="48" r="4.5" fill="black"/>`;
+                ojosSVG = `<circle cx="36" cy="46" r="12" fill="white" stroke="#111" stroke-width="3"/>
+                           <circle cx="36" cy="46" r="5" fill="black"/>
+                           <circle cx="64" cy="46" r="12" fill="white" stroke="#111" stroke-width="3"/>
+                           <circle cx="64" cy="46" r="5" fill="black"/>`;
             }
 
             const svgCompleto = `
                 <svg viewBox="0 0 100 100" style="width:100%; height:100%;">
+                    ${brazosSVG}
+                    ${patasSVG}
                     ${cuernosSVG}
-                    ${pelosSilueta}
-                    <ellipse cx="50" cy="58" rx="34" ry="31" fill="${colorCuerpo}" stroke="#111" stroke-width="3"/>
-                    <path d="M 35 55 L 40 60 M 60 55 L 55 60 M 45 70 L 50 75" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round"/>
+                    <ellipse cx="50" cy="58" rx="28" ry="26" fill="${colorCuerpo}" stroke="#111" stroke-width="3.5"/>
+                    <path d="M 44 33 L 50 25 L 56 33" fill="${colorCuerpo}" stroke="#111" stroke-width="2.5"/>
                     ${ojosSVG}
-                    <path d="M 36 70 Q 50 82 64 70" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M 42 71 L 44 76 L 46 71 Z M 54 71 L 56 76 L 58 71 Z" fill="white"/>
+                    <path d="M 38 66 Q 50 76 62 66" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M 43 67 L 45 72 L 47 67 Z M 53 67 L 55 72 L 57 67 Z" fill="white"/>
                 </svg>
             `;
             document.getElementById(idContenedor).innerHTML = svgCompleto;
@@ -300,7 +308,7 @@ juego_html = """
             }
         }
 
-        // --- JUEGO ---
+        // --- LÓGICA ---
         function generarReto() {
             let n1 = Math.floor(Math.random() * 10) + 1;
             let n2 = Math.floor(Math.random() * 10) + 1;
@@ -319,7 +327,7 @@ juego_html = """
 
             for(let i=0; i<4; i++) { 
                 document.getElementById(`opt-${i}`).innerText = opciones[i]; 
-                generarMonsterSVG(`avatar-${i}`); // ¡Mutación de monstruos en cada ronda!
+                generarMonsterSVG(`avatar-${i}`); 
             }
         }
 
