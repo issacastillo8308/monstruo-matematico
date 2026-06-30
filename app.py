@@ -13,7 +13,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- MOTOR DE JUEGO EVOLUCIONADO CON 10 NIVEL DE DIFICULTAD ---
+# --- MOTOR DE JUEGO CON 20 SEGUNDOS POR NIVEL ---
 juego_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -189,25 +189,25 @@ juego_html = """
     <!-- PANTALLA DE BIENVENIDA -->
     <div id="pantalla-inicio" class="pantalla-modal">
         <h1 style="color: #00ffcc; font-size: 34px; margin: 0 0 10px 0; text-shadow: 0 0 12px #00ffcc;">👾 RETO MONSTRUO</h1>
-        <p style="font-size: 16px; color: #ff007f; margin: 0 0 30px 0; text-transform:uppercase; letter-spacing:1px;">¡Supera los 10 niveles en 30s!</p>
+        <p style="font-size: 15px; color: #ff007f; margin: 0 0 30px 0; text-transform:uppercase; letter-spacing:1px;">¡Tienes sólo 20s por nivel!</p>
         <button class="btn-grande-arcade" onclick="comenzarRondaReal()">🎮 INICIAR JUEGO</button>
     </div>
 
     <!-- PANTALLA DE FIN DE JUEGO -->
     <div id="pantalla-fin" class="pantalla-modal" style="display: none;">
-        <h1 style="color: #ff007f; font-size: 42px; margin: 0;">⏱️ ¡TIEMPO!</h1>
+        <h1 style="color: #ff007f; font-size: 42px; margin: 0; text-shadow: 0 0 15px #ff007f;">⏱️ ¡TIEMPO!</h1>
         <p style="font-size: 20px; margin: 10px 0;">Nivel Alcanzado: <span id="final-nivel" style="color:#00ffcc; font-weight:bold;">1</span></p>
-        <p style="font-size: 24px; margin: 5px 0 20px 0;">Puntuación: <span id="final-puntos" style="color:#fffb00; font-weight:bold;">0</span></p>
-        <button class="btn-grande-arcade" style="background: linear-gradient(180deg, #ff007f 0%, #b30059 100%); color: white; box-shadow: 0 0 25px #ff007f;" onclick="reiniciarJuego()">🔄 OTRA VEZ</button>
+        <p style="font-size: 24px; margin: 5px 0 20px 0;">Total Galletas: <span id="final-puntos" style="color:#fffb00; font-weight:bold;">0</span></p>
+        <button class="btn-grande-arcade" style="background: linear-gradient(180deg, #ff007f 0%, #b30059 100%); color: white; box-shadow: 0 0 25px #ff007f;" onclick="reiniciarJuego()">🔄 VOLVER A INTENTAR</button>
     </div>
 
     <div class="game-wrapper">
         <div class="tablero-neon">
             <div class="stats-bar">
-                <div>⏱️ Tiempo: <b id="timer" style="color:white;">30</b>s</div>
-                <!-- CAMBIO: Ahora mostramos el Nivel en vivo en la barra superior -->
+                <!-- Mostramos los 20 segundos dinámicos -->
+                <div>⏱️ Reloj: <b id="timer" style="color:#ff007f; font-size:16px;">20</b>s</div>
                 <div style="color: #00ffcc;">⭐ Nivel: <b id="txt-nivel" style="color:white; font-size:16px;">1</b></div>
-                <div>🍪 Panza: <b id="puntos" style="color:white;">0</b></div>
+                <div>🍪 Galletas: <b id="puntos" style="color:white;">0</b></div>
             </div>
             <p class="operacion-titulo" id="operacion-texto">RETO: 2 + 1</p>
         </div>
@@ -242,7 +242,8 @@ juego_html = """
     </div>
 
     <script>
-        let puntos = 0, nivel = 1, tiempo = 30;
+        let puntos = 0, nivel = 1, tiempo = 20; // CAMBIO: Iniciamos en 20s
+        let puntosEnNivelActual = 0; // Lleva el conteo de los 3 aciertos del nivel
         let respuestaCorrecta = 0, opciones = [], juegoActivo = false, cronometro;
         
         const coloresMonster = ['#ff007f', '#2ecc71', '#3498db', '#f1c40f', '#9b59b6', '#e67e22', '#00ffcc'];
@@ -354,28 +355,27 @@ juego_html = """
             }
         }
 
-        // --- SISTEMA DE 10 NIVELES DE DIFICULTAD CORREGIDO ---
+        // --- SISTEMA MATEMÁTICO ESCALABLE ---
         function generarReto() {
             let n1 = 0, n2 = 0, op = '+';
             
-            // Definición de rangos matemáticos por nivel
             if (nivel === 1) { n1 = Math.floor(Math.random() * 4) + 1; n2 = Math.floor(Math.random() * 4) + 1; op = '+'; }
             else if (nivel === 2) { n1 = Math.floor(Math.random() * 7) + 1; n2 = Math.floor(Math.random() * 5) + 1; op = '+'; }
             else if (nivel === 3) { n1 = Math.floor(Math.random() * 10) + 1; n2 = Math.floor(Math.random() * 8) + 1; op = '+'; }
-            else if (nivel === 4) { n1 = Math.floor(Math.random() * 10) + 1; n2 = Math.floor(Math.random() * 5) + 1; op = '-'; } // Inician restas básicas
+            else if (nivel === 4) { n1 = Math.floor(Math.random() * 10) + 1; n2 = Math.floor(Math.random() * 5) + 1; op = '-'; } 
             else if (nivel === 5) { n1 = Math.floor(Math.random() * 15) + 5; n2 = Math.floor(Math.random() * 10) + 1; op = Math.random() > 0.5 ? '+' : '-'; }
             else if (nivel === 6) { n1 = Math.floor(Math.random() * 20) + 5; n2 = Math.floor(Math.random() * 15) + 5; op = '+'; }
             else if (nivel === 7) { n1 = Math.floor(Math.random() * 25) + 10; n2 = Math.floor(Math.random() * 15) + 5; op = '-'; }
             else if (nivel === 8) { n1 = Math.floor(Math.random() * 35) + 10; n2 = Math.floor(Math.random() * 20) + 5; op = Math.random() > 0.5 ? '+' : '-'; }
             else if (nivel === 9) { n1 = Math.floor(Math.random() * 50) + 15; n2 = Math.floor(Math.random() * 30) + 10; op = Math.random() > 0.5 ? '+' : '-'; }
-            else { n1 = Math.floor(Math.random() * 80) + 20; n2 = Math.floor(Math.random() * 50) + 15; op = Math.random() > 0.5 ? '+' : '-'; } // Nivel 10 Épico
+            else { n1 = Math.floor(Math.random() * 80) + 20; n2 = Math.floor(Math.random() * 50) + 15; op = Math.random() > 0.5 ? '+' : '-'; } 
 
             if (op === '-' && n1 < n2) { let t = n1; n1 = n2; n2 = t; }
             respuestaCorrecta = op === '+' ? n1 + n2 : n1 - n2;
             document.getElementById('operacion-texto').innerText = `RETO: ${n1} ${op} ${n2}`;
 
             let falsos = new Set();
-            let rangoFalsos = nivel * 8 + 15; // Los distractores también se vuelven más lógicos según nivel
+            let rangoFalsos = nivel * 8 + 15; 
             while(falsos.size < 3) {
                 let f = Math.floor(Math.random() * rangoFalsos);
                 if (f !== respuestaCorrecta && f >= 0) falsos.add(f);
@@ -401,6 +401,7 @@ juego_html = """
         function comenzarRondaReal() {
             document.getElementById('pantalla-inicio').style.display = 'none';
             juegoActivo = true;
+            tiempo = 20; // Asegura arrancar en 20s
             generarReto();
             iniciarCronometro();
         }
@@ -410,14 +411,18 @@ juego_html = """
             let tarjeta = document.getElementsByClassName('tarjeta-arcade')[indice];
             if (opciones[indice] === respuestaCorrecta) {
                 puntos++; 
+                puntosEnNivelActual++;
                 document.getElementById('puntos').innerText = puntos;
                 
-                // SISTEMA AUTOMÁTICO DE SUBIDA DE NIVEL (Cada 3 aciertos sube 1 nivel hasta el 10)
-                let nuevoNivel = Math.floor(puntos / 3) + 1;
-                if (nuevoNivel > 10) nuevoNivel = 10;
-                if (nuevoNivel !== nivel) {
-                    nivel = nuevoNivel;
-                    document.getElementById('txt-nivel').innerText = nivel;
+                // CAMBIO: Si junta 3 aciertos en este nivel, sube y se REINICIA el reloj a 20s
+                if (puntosEnNivelActual >= 3) {
+                    if (nivel < 10) {
+                        nivel++;
+                        puntosEnNivelActual = 0;
+                        tiempo = 20; // REINICIO DEL RELOJ ⏱️🔥
+                        document.getElementById('txt-nivel').innerText = nivel;
+                        document.getElementById('timer').innerText = tiempo;
+                    }
                 }
 
                 sonar('correcto'); lanzarConfeti();
@@ -439,12 +444,13 @@ juego_html = """
         }
 
         function reiniciarJuego() {
-            puntos = 0; tiempo = 30; nivel = 1; juegoActivo = true;
+            puntos = 0; nivel = 1; tiempo = 20; puntosEnNivelActual = 0; juegoActivo = true;
             document.getElementById('puntos').innerText = puntos;
             document.getElementById('timer').innerText = tiempo;
             document.getElementById('txt-nivel').innerText = nivel;
             document.getElementById('pantalla-fin').style.display = 'none';
             generarReto();
+            clearInterval(cronometro);
             iniciarCronometro();
         }
 
