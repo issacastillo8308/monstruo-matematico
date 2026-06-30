@@ -13,7 +13,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- MOTOR DE JUEGO ULTRA PREMIUM CON ERRORES, SONIDO DE VICTORIA Y CONFETI MASIVO ---
+# --- MOTOR DE JUEGO SUPREMO CON PORTADA DE LUJO Y MARCADOR DESGLOSADO ---
 juego_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -69,7 +69,6 @@ juego_html = """
             text-shadow: 0 0 12px #00ffcc;
         }
 
-        /* Marcador de Vidas / Errores */
         .vidas-container {
             font-size: 15px;
             color: #ff3333;
@@ -80,7 +79,7 @@ juego_html = """
             animation: blinkX 0.3s ease-in-out;
         }
         @keyframes blinkX {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 red); }
+            0%, 100% { transform: scale(1); }
             50% { transform: scale(1.3); filter: drop-shadow(0 0 8px red); }
         }
 
@@ -165,22 +164,67 @@ juego_html = """
             50% { opacity: 1; text-shadow: 0 0 8px #00ffcc; }
         }
 
+        /* --- PANTALLAS MODALES --- */
         .pantalla-modal {
             display: flex;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(9, 7, 15, 0.98);
+            background: rgba(9, 7, 15, 0.99);
             z-index: 100;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
+
+        /* Estilos de la Portada Bonita */
+        .caja-portada {
+            border: 4px dashed #00ffcc;
+            padding: 30px 20px;
+            border-radius: 30px;
+            background: rgba(20, 15, 45, 0.6);
+            box-shadow: 0 0 25px rgba(0,255,204,0.3);
+            max-width: 340px;
+            position: relative;
+        }
+        .decoracion-monstruos {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .mini-monster {
+            width: 65px;
+            height: 65px;
+            animation: bounce 1.2s infinite ease-in-out;
+        }
+
+        /* Tarjeta de Resultados Finales */
+        .tabla-resultados {
+            background: #140f2d;
+            border: 2px solid #ff007f;
+            border-radius: 18px;
+            padding: 15px 25px;
+            margin: 15px 0 25px 0;
+            min-width: 260px;
+            box-shadow: 0 0 15px rgba(255,0,127,0.2);
+        }
+        .fila-res {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            margin: 8px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            padding-bottom: 4px;
+        }
+
         .btn-grande-arcade {
             background: linear-gradient(180deg, #00ffcc 0%, #00b38f 100%);
             color: black;
             border: 3px solid white;
-            padding: 18px 40px;
-            font-size: 24px;
+            padding: 16px 38px;
+            font-size: 22px;
             font-weight: bold;
             border-radius: 20px;
             cursor: pointer;
@@ -202,16 +246,49 @@ juego_html = """
     <canvas id="confetti-canvas"></canvas>
 
     <div id="pantalla-inicio" class="pantalla-modal">
-        <h1 style="color: #00ffcc; font-size: 34px; margin: 0 0 10px 0; text-shadow: 0 0 12px #00ffcc;">👾 RETO MONSTRUO</h1>
-        <p style="font-size: 15px; color: #ff007f; margin: 0 0 30px 0; text-transform:uppercase; letter-spacing:1px;">¡20s por nivel! Cuidado con los errores.</p>
-        <button class="btn-grande-arcade" onclick="comenzarRondaReal()">🎮 INICIAR JUEGO</button>
+        <div class="caja-portada">
+            <div class="decoracion-monstruos">
+                <svg class="mini-monster" viewBox="0 0 100 100" style="animation-delay:0s;">
+                    <path d="M 30 36 Q 14 10 26 6 Z" fill="#ff007f" stroke="#111" stroke-width="2"/>
+                    <ellipse cx="50" cy="55" rx="35" ry="32" fill="#ff007f" stroke="#111" stroke-width="3"/>
+                    <circle cx="50" cy="45" r="10" fill="white" stroke="#111" stroke-width="2"/>
+                    <circle cx="50" cy="45" r="4" fill="black"/>
+                </svg>
+                <svg class="mini-monster" viewBox="0 0 100 100" style="animation-delay:0.4s;">
+                    <path d="M 70 36 Q 86 10 74 6 Z" fill="#2ecc71" stroke="#111" stroke-width="2"/>
+                    <ellipse cx="50" cy="55" rx="35" ry="32" fill="#2ecc71" stroke="#111" stroke-width="3"/>
+                    <circle cx="38" cy="45" r="8" fill="white" stroke="#111" stroke-width="2"/>
+                    <circle cx="38" cy="45" r="3" fill="black"/>
+                    <circle cx="62" cy="45" r="8" fill="white" stroke="#111" stroke-width="2"/>
+                    <circle cx="62" cy="45" r="3" fill="black"/>
+                </svg>
+            </div>
+            
+            <h1 style="color: #00ffcc; font-size: 36px; margin: 0 0 5px 0; text-shadow: 0 0 15px #00ffcc; font-weight:900;">RETO<br>MONSTRUO</h1>
+            <p style="font-size: 13px; color: #fffb00; margin: 0 0 25px 0; letter-spacing:1.5px; text-transform:uppercase;">Arcade Matemático</p>
+            <button class="btn-grande-arcade" onclick="comenzarRondaReal()">🎮 JUGAR NOW</button>
+        </div>
     </div>
 
     <div id="pantalla-fin" class="pantalla-modal" style="display: none;">
-        <h1 id="txt-fin-titulo" style="color: #ff007f; font-size: 42px; margin: 0; text-shadow: 0 0 15px #ff007f;">⏱️ ¡TIEMPO!</h1>
-        <p style="font-size: 20px; margin: 10px 0;">Nivel Alcanzado: <span id="final-nivel" style="color:#00ffcc; font-weight:bold;">1</span></p>
-        <p style="font-size: 24px; margin: 5px 0 20px 0;">Total Galletas: <span id="final-puntos" style="color:#fffb00; font-weight:bold;">0</span></p>
-        <button class="btn-grande-arcade" style="background: linear-gradient(180deg, #ff007f 0%, #b30059 100%); color: white; box-shadow: 0 0 25px #ff007f;" onclick="reiniciarJuego()"> Volver a Intentar</button>
+        <h1 id="txt-fin-titulo" style="color: #ff007f; font-size: 40px; margin: 0; text-shadow: 0 0 15px #ff007f;">❌ GAME OVER</h1>
+        
+        <div class="tabla-resultados">
+            <div class="fila-res">
+                <span style="color:#7f7f99;">⭐ NIVEL:</span>
+                <span id="final-nivel" style="color:#00ffcc; font-weight:bold;">1</span>
+            </div>
+            <div class="fila-res">
+                <span style="color:#2ecc71;">🍪 ACIERTOS:</span>
+                <span id="final-aciertos" style="color:#2ecc71; font-weight:bold;">0</span>
+            </div>
+            <div class="fila-res" style="border-none:none;">
+                <span style="color:#ff3333;">❌ ERRORES:</span>
+                <span id="final-errores" style="color:#ff3333; font-weight:bold;">0</span>
+            </div>
+        </div>
+
+        <button class="btn-grande-arcade" style="background: linear-gradient(180deg, #ff007f 0%, #b30059 100%); color: white; box-shadow: 0 0 25px #ff007f;" onclick="reiniciarJuego()">🔄 VOLVER A INTENTAR</button>
     </div>
 
     <div class="game-wrapper">
@@ -260,6 +337,7 @@ juego_html = """
         let puntos = 0, nivel = 1, tiempo = 20, errores = 0; 
         let puntosEnNivelActual = 0; 
         let respuestaCorrecta = 0, opciones = [], juegoActivo = false, cronometro;
+        let contadorErroresTotales = 0; // Registro global para la ventana final
         
         const coloresMonster = ['#ff007f', '#2ecc71', '#3498db', '#f1c40f', '#9b59b6', '#e67e22', '#00ffcc'];
         
@@ -325,7 +403,6 @@ juego_html = """
             document.getElementById(idContenedor).innerHTML = svgCompleto;
         }
 
-        // --- SISTEMA DE CONFETI OPTIMIZADO ---
         const canvas = document.getElementById('confetti-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -352,7 +429,6 @@ juego_html = """
         }
         drawParticles();
 
-        // --- SINTETIZADOR DE AUDIO ARCADE ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function sonar(tipo) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -368,12 +444,9 @@ juego_html = """
                 osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.15);
                 gain.gain.setValueAtTime(0.15, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.15);
             } else if (tipo === 'victoria') {
-                // Fanfarria de victoria ascendente rápida estilo Mario Bros
                 osc.type = 'square';
-                let notas = [523.25, 659.25, 783.99, 1046.50]; // Do, Mi, Sol, Do alto
-                notas.forEach((f, i) => {
-                    osc.frequency.setValueAtTime(f, audioCtx.currentTime + (i * 0.08));
-                });
+                let notas = [523.25, 659.25, 783.99, 1046.50]; 
+                notas.forEach((f, i) => { osc.frequency.setValueAtTime(f, audioCtx.currentTime + (i * 0.08)); });
                 gain.gain.setValueAtTime(0.15, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             } else if (tipo === 'fin') {
                 osc.type = 'square'; osc.frequency.setValueAtTime(220, audioCtx.currentTime);
@@ -381,7 +454,6 @@ juego_html = """
             }
         }
 
-        // --- CONFIGURACIÓN DE DIFICULTAD ---
         function generarReto() {
             let n1 = 0, n2 = 0, op = '+';
             if (nivel === 1) { n1 = Math.floor(Math.random() * 4) + 1; n2 = Math.floor(Math.random() * 4) + 1; op = '+'; }
@@ -431,7 +503,6 @@ juego_html = """
             iniciarCronometro();
         }
 
-        // --- MANEJO DE ERRORES VISUALES ---
         function actualizarVidasVisuales() {
             let str = "";
             for(let i=1; i<=3; i++) {
@@ -450,7 +521,6 @@ juego_html = """
                 puntosEnNivelActual++;
                 document.getElementById('puntos').innerText = puntos;
                 
-                // SI PASA DE NIVEL (3 aciertos)
                 if (puntosEnNivelActual >= 3) {
                     if (nivel < 10) {
                         nivel++;
@@ -458,21 +528,18 @@ juego_html = """
                         tiempo = 20; 
                         document.getElementById('txt-nivel').innerText = nivel;
                         document.getElementById('timer').innerText = tiempo;
-                        
-                        // EFECTOS NUEVOS DE VICTORIA POR NIVEL
                         sonar('victoria'); 
-                        lanzarConfeti(120); // ¡Tormenta enorme de confeti!
+                        lanzarConfeti(120); 
                     }
                 } else {
-                    // Confeti chiquito normal por acierto regular
                     sonar('correcto'); lanzarConfeti(30);
                 }
 
                 tarjeta.classList.add('correcto-impacto');
                 setTimeout(() => { tarjeta.classList.remove('correcto-impacto'); generarReto(); }, 120);
             } else {
-                // REGISTRO DE ERROR NUEVO
                 errores++;
+                contadorErroresTotales++; // Registra para el desglose final
                 actualizarVidasVisuales();
                 sonar('incorrecto'); 
                 tarjeta.classList.add('incorrecto-impacto');
@@ -498,13 +565,15 @@ juego_html = """
                 document.getElementById('txt-fin-titulo').style.color = "#ff007f";
             }
 
-            document.getElementById('final-puntos').innerText = puntos;
+            // CAMBIO CLAVE: Desglose completo de resultados en la ventana
+            document.getElementById('final-aciertos').innerText = puntos;
+            document.getElementById('final-errores').innerText = contadorErroresTotales;
             document.getElementById('final-nivel').innerText = nivel;
             document.getElementById('pantalla-fin').style.display = 'flex';
         }
 
         function reiniciarJuego() {
-            puntos = 0; nivel = 1; tiempo = 20; puntosEnNivelActual = 0; errores = 0; juegoActivo = true;
+            puntos = 0; nivel = 1; tiempo = 20; puntosEnNivelActual = 0; errores = 0; contadorErroresTotales = 0; juegoActivo = true;
             document.getElementById('puntos').innerText = puntos;
             document.getElementById('timer').innerText = tiempo;
             document.getElementById('txt-nivel').innerText = nivel;
