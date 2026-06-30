@@ -13,7 +13,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- MOTOR DE JUEGO CON BOTÓN OFICIAL DE FACEBOOK ---
+# --- MOTOR DE JUEGO CORREGIDO PARA QUE NO SE CORTE ---
 juego_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -121,9 +121,9 @@ juego_html = """
         .correcto-impacto { background: #2ecc71 !important; box-shadow: 0 0 20px #2ecc71 !important; }
         .incorrecto-impacto { background: #e74c3c !important; box-shadow: 0 0 20px #e74c3c !important; }
 
-        /* --- BOTÓN PREMIUM DE SÍGUEME EN FACEBOOK --- */
+        /* --- BOTÓN DE FACEBOOK --- */
         .fb-container {
-            margin-top: 22px;
+            margin-top: 18px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -148,7 +148,6 @@ juego_html = """
             transform: scale(0.95);
             box-shadow: 0 2px 5px rgba(24, 119, 242, 0.6);
         }
-        /* Icono de FB oficial en SVG */
         .fb-icon {
             width: 20px;
             height: 20px;
@@ -412,4 +411,5 @@ juego_html = """
 </html>
 """
 
-st.components.v1.html(juego_html, height=590, scrolling=False)
+# AQUÍ ESTÁ EL CAMBIO CLAVE: Subimos a 640 para dar espacio libre abajo
+st.components.v1.html(juego_html, height=640, scrolling=False)
