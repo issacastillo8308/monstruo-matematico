@@ -13,7 +13,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- MOTOR DE JUEGO CORREGIDO PARA QUE NO SE CORTE ---
+# --- MOTOR DE JUEGO CON PANTALLA DE INICIO ---
 juego_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -92,7 +92,6 @@ juego_html = """
             box-shadow: 0 2px 0 #05030f;
         }
 
-        /* Contenedor Animado */
         .svg-container {
             width: 115px;
             height: 115px;
@@ -121,7 +120,6 @@ juego_html = """
         .correcto-impacto { background: #2ecc71 !important; box-shadow: 0 0 20px #2ecc71 !important; }
         .incorrecto-impacto { background: #e74c3c !important; box-shadow: 0 0 20px #e74c3c !important; }
 
-        /* --- BOTÓN DE FACEBOOK --- */
         .fb-container {
             margin-top: 18px;
             display: flex;
@@ -144,28 +142,16 @@ juego_html = """
             box-shadow: 0 4px 15px rgba(24, 119, 242, 0.4);
             transition: all 0.2s ease;
         }
-        .btn-fb-sigueme:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 5px rgba(24, 119, 242, 0.6);
-        }
-        .fb-icon {
-            width: 20px;
-            height: 20px;
-            fill: white;
-            margin-right: 10px;
-        }
-        .text-neon-fb {
-            color: #00ffcc;
-            margin-left: 5px;
-            animation: pulse 1.2s infinite;
-        }
+        .fb-icon { width: 20px; height: 20px; fill: white; margin-right: 10px; }
+        .text-neon-fb { color: #00ffcc; margin-left: 5px; animation: pulse 1.2s infinite; }
         @keyframes pulse {
             0%, 100% { opacity: 0.7; text-shadow: 0 0 2px #00ffcc; }
             50% { opacity: 1; text-shadow: 0 0 8px #00ffcc; }
         }
 
-        .game-over-screen {
-            display: none;
+        /* --- PANTALLAS FLOTANTES DE INICIO Y FIN --- */
+        .pantalla-modal {
+            display: flex;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(9, 7, 15, 0.98);
@@ -174,16 +160,24 @@ juego_html = """
             justify-content: center;
             align-items: center;
         }
-        .btn-restart {
-            background: #00ffcc;
+        .btn-grande-arcade {
+            background: linear-gradient(180deg, #00ffcc 0%, #00b38f 100%);
             color: black;
-            border: none;
-            padding: 15px 32px;
-            font-size: 20px;
+            border: 3px solid white;
+            padding: 18px 40px;
+            font-size: 24px;
             font-weight: bold;
-            border-radius: 14px;
-            box-shadow: 0 0 15px #00ffcc;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 25px #00ffcc;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: transform 0.1s ease;
         }
+        .btn-grande-arcade:active {
+            transform: scale(0.95);
+        }
+
         #confetti-canvas {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -196,10 +190,16 @@ juego_html = """
 
     <canvas id="confetti-canvas"></canvas>
 
-    <div id="pantalla-fin" class="game-over-screen">
+    <div id="pantalla-inicio" class="pantalla-modal">
+        <h1 style="color: #00ffcc; font-size: 34px; margin: 0 0 10px 0; text-shadow: 0 0 12px #00ffcc;">👾 RETO MONSTRUO</h1>
+        <p style="font-size: 16px; color: #ff007f; margin: 0 0 30px 0; text-transform:uppercase; letter-spacing:1px;">¿Cuántos puedes alimentar en 30s?</p>
+        <button class="btn-grande-arcade" onclick="comenzarRondaReal()">🎮 INICIAR JUEGO</button>
+    </div>
+
+    <div id="pantalla-fin" class="pantalla-modal" style="display: none;">
         <h1 style="color: #ff007f; font-size: 42px; margin: 0;">⏱️ ¡TIEMPO!</h1>
         <p style="font-size: 24px; margin: 15px 0;">Puntuación: <span id="final-puntos" style="color:#fffb00; font-weight:bold;">0</span></p>
-        <button class="btn-restart" onclick="reiniciarJuego()">🎮 VOLVER A JUGAR</button>
+        <button class="btn-grande-arcade" style="background: linear-gradient(180deg, #ff007f 0%, #b30059 100%); color: white; box-shadow: 0 0 25px #ff007f;" onclick="reiniciarJuego()">🔄 OTRA VEZ</button>
     </div>
 
     <div class="game-wrapper">
@@ -243,7 +243,7 @@ juego_html = """
 
     <script>
         let puntos = 0, record = 0, tiempo = 30;
-        let respuestaCorrecta = 0, opciones = [], juegoActivo = true, cronometro;
+        let respuestaCorrecta = 0, opciones = [], juegoActivo = false, cronometro;
         
         const coloresMonster = ['#ff007f', '#2ecc71', '#3498db', '#f1c40f', '#9b59b6', '#e67e22', '#00ffcc'];
         
@@ -348,6 +348,9 @@ juego_html = """
                 osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, audioCtx.currentTime);
                 osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 0.12);
                 gain.gain.setValueAtTime(0.12, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.12);
+            } else if (tipo === 'fin') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(293.66, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             }
         }
 
@@ -373,17 +376,25 @@ juego_html = """
             }
         }
 
-        function iniciarTiempo() {
+        // --- MANEJO DE TIEMPO OFICIAL ---
+        function iniciarCronometro() {
             cronometro = setInterval(() => {
-                if (!juegoActActive) return;
-                tiempo--; document.getElementById('timer').innerText = tiempo;
-                if (tiempo <= 0) { juegoActActive = false; document.getElementById('final-puntos').innerText = puntos; document.getElementById('pantalla-fin').style.display = 'flex'; }
+                if (!juegoActivo) return;
+                tiempo--;
+                document.getElementById('timer').innerText = tiempo;
+                if (tiempo <= 0) finalizarRonda();
             }, 1000);
         }
-        let juegoActActive = true;
+
+        function comenzarRondaReal() {
+            document.getElementById('pantalla-inicio').style.display = 'none';
+            juegoActivo = true;
+            generarReto();
+            iniciarCronometro();
+        }
 
         function tocarMonstruo(indice) {
-            if (!juegoActActive) return;
+            if (!juegoActivo) return;
             let tarjeta = document.getElementsByClassName('tarjeta-arcade')[indice];
             if (opciones[indice] === respuestaCorrecta) {
                 puntos++; document.getElementById('puntos').innerText = puntos;
@@ -397,19 +408,28 @@ juego_html = """
             }
         }
 
-        function reiniciarJuego() {
-            puntos = 0; tiempo = 30; juegoActActive = true;
-            document.getElementById('puntos').innerText = puntos; document.getElementById('timer').innerText = tiempo;
-            document.getElementById('pantalla-fin').style.display = 'none';
-            generarReto();
+        function finalizarRonda() {
+            juegoActivo = false;
+            clearInterval(cronometro);
+            sonar('fin');
+            document.getElementById('final-puntos').innerText = puntos;
+            document.getElementById('pantalla-fin').style.display = 'flex';
         }
 
+        function reiniciarJuego() {
+            puntos = 0; tiempo = 30; juegoActivo = true;
+            document.getElementById('puntos').innerText = puntos;
+            document.getElementById('timer').innerText = tiempo;
+            document.getElementById('pantalla-fin').style.display = 'none';
+            generarReto();
+            iniciarCronometro();
+        }
+
+        // Carga silenciosa en el fondo para que esté listo al picar iniciar
         generarReto();
-        iniciarTiempo();
     </script>
 </body>
 </html>
 """
 
-# AQUÍ ESTÁ EL CAMBIO CLAVE: Subimos a 640 para dar espacio libre abajo
 st.components.v1.html(juego_html, height=640, scrolling=False)
