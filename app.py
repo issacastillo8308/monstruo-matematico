@@ -1,61 +1,78 @@
 import streamlit as st
 import random
 
-st.set_page_config(page_title="Monstruo Tragón", page_icon="👾")
+st.set_page_config(page_title="Golpea al Monstruo", page_icon="👾", layout="centered")
 
-st.title("👾 ¡El Monstruo Tragón de los Números! 👾")
-st.write("¡Aliméntalo con respuestas correctas para hacerlo engordar!")
+st.title("👾 ¡Juego Interactivo: Golpea al Monstruo! 👾")
+st.write("Mira la operación arriba y toca al monstruo que tenga la respuesta correcta.")
 
-# Guardamos los aciertos y los números en la sesión
-if 'aciertos' not in st.session_state:
-    st.session_state.aciertos = 0
-if 'num1' not in st.session_state:
-    st.session_state.num1 = random.randint(1, 10)
-    st.session_state.num2 = random.randint(1, 10)
-    st.session_state.operacion = random.choice(['+', '-'])
-    if st.session_state.operacion == '-' and st.session_state.num1 < st.session_state.num2:
-        st.session_state.num1, st.session_state.num2 = st.session_state.num2, st.session_state.num1
+# Inicializar estados del juego
+if 'score' not in st.session_state:
+    st.session_state.score = 0
+if 'n1' not in st.session_state:
+    st.session_state.n1 = random.randint(1, 10)
+    st.session_state.n2 = random.randint(1, 10)
+    st.session_state.op = random.choice(['+', '-'])
+    if st.session_state.op == '-' and st.session_state.n1 < st.session_state.n2:
+        st.session_state.n1, st.session_state.n2 = st.session_state.n2, st.session_state.n1
 
-n1 = st.session_state.num1
-n2 = st.session_state.num2
-op = st.session_state.operacion
-puntos = st.session_state.aciertos
+n1, n2, op = st.session_state.n1, st.session_state.n2, st.session_state.op
+respuesta_correcta = n1 + n2 if op == '+' else n1 - n2
 
-# --- LA EVOLUCIÓN DEL MONSTRUO (¡Aquí pasa la magia!) ---
-st.markdown("### El estado de tu monstruo:")
-if puntos == 0:
-    st.markdown("<h1 style='text-align: center; font-size: 50px;'>💀 <br><small style='font-size:15px;'>¡Tengo un chorro de hambre, mírame qué flaco!</small></h1>", unsafe_allow_html=True)
-elif puntos == 1:
-    st.markdown("<h1 style='text-align: center; font-size: 70px;'>👾 <br><small style='font-size:15px;'>¡Yumi! Ya me voy sintiendo mejor.</small></h1>", unsafe_allow_html=True)
-elif puntos == 2:
-    st.markdown("<h1 style='text-align: center; font-size: 100px;'>🤖 <br><small style='font-size:15px;'>¡Ya me creció la panza!</small></h1>", unsafe_allow_html=True)
-else:
-    st.markdown("<h1 style='text-align: center; font-size: 140px;'>👹 <br><small style='font-size:15px;'>¡ESTOY REVENTANDO DE GORDITO! ¡GRACIAS!</small></h1>", unsafe_allow_html=True)
+# Crear opciones falsas para los otros monstruos
+if 'opciones' not in st.session_state or st.session_state.get('actualizar_opciones', False):
+    falsos = set()
+    while len(falsos) < 3:
+        f = random.randint(0, 20)
+        if f != respuesta_correcta:
+            falsos.add(f)
+    opciones = list(falsos) + [respuesta_correcta]
+    random.shuffle(opciones)
+    st.session_state.opciones = opciones
+    st.session_state.actualizar_opciones = False
 
-st.write(f"✨ **Galletas acumuladas en su panza:** {puntos}")
+opciones = st.session_state.opciones
+
+# --- PANTALLA DE JUEGO ---
+# Tablero superior estilo Arcade
+st.markdown(f"""
+<div style="background-color: #2e2e3a; padding: 15px; border-radius: 15px; text-align: center; border: 3px solid #ff007f;">
+    <h2 style="color: #00ffcc; margin: 0; font-family: 'Courier New', monospace;">RETO: {n1} {op} {n2} = ?</h2>
+    <h4 style="color: #ff007f; margin: 5px 0 0 0;">🍪 Puntos en la panza: {st.session_state.score}</h4>
+</div>
+""", unsafe_allow_html=True)
+
+st.write("")
+
+# Mostrar el diseño de los monstruos tragones para elegir con un clic
+cols = st.columns(2)
+
+for i, opcion in enumerate(opciones):
+    # Determinar qué tan gordito está el monstruo visualmente en el botón
+    size_emoji = "👾" if st.session_state.score < 3 else "👹"
+    
+    with cols[i % 2]:
+        # Cada monstruo es un botón interactivo gigante con su número
+        if st.button(f"{size_emoji}\n\n {opcion} ", key=f"btn_{i}_{opcion}", use_container_width=True):
+            if opcion == respuesta_correcta:
+                st.session_state.score += 1
+                st.success(f"💥 ¡ZAS! ¡Alimentaste al correcto! +1 Galleta 🍪")
+                st.balloons()
+                
+                # Siguiente pregunta automática
+                st.session_state.n1 = random.randint(1, 10)
+                st.session_state.n2 = random.randint(1, 10)
+                st.session_state.op = random.choice(['+', '-'])
+                if st.session_state.op == '-' and st.session_state.n1 < st.session_state.n2:
+                    st.session_state.n1, st.session_state.n2 = st.session_state.n2, st.session_state.n1
+                st.session_state.actualizar_opciones = True
+                st.rerun()
+            else:
+                st.error(f"❌ ¡Uf! Ese monstruo se quedó con hambre. ¡Intenta otra vez!")
+
+# Opción para reiniciar el marcador
 st.write("---")
-
-# Reto matemático
-st.header(f"¿Cuánto es {n1} {op} {n2}? 🤔")
-respuesta = st.number_input("Tu respuesta aquí 👇", min_value=0, step=1, key="resp")
-
-if st.button("🎯 ¡ALIMENTAR!"):
-    correcto = n1 + n2 if op == '+' else n1 - n2
-    if respuesta == correcto:
-        st.session_state.aciertos += 1
-        st.success(f"🎉 ¡Esooo! {n1} {op} {n2} = {correcto}. ¡Le diste una galleta!")
-        st.balloons()
-        
-        # Cambiamos de operación automáticamente para la próxima ronda
-        st.session_state.num1 = random.randint(1, 10)
-        st.session_state.num2 = random.randint(1, 10)
-        st.session_state.operacion = random.choice(['+', '-'])
-        if st.session_state.operacion == '-' and st.session_state.num1 < st.session_state.num2:
-            st.session_state.num1, st.session_state.num2 = st.session_state.num2, st.session_state.num1
-        st.rerun()
-    else:
-        st.error("❌ ¡Ay, no! Fallaste y el monstruo sigue con hambre. ¡Intenta otra vez!")
-
-if st.button("🔄 Reiniciar juego / Vaciar monstruo"):
-    st.session_state.aciertos = 0
+if st.button("🔄 Reiniciar Marcador Arcadé"):
+    st.session_state.score = 0
+    st.session_state.actualizar_opciones = True
     st.rerun()
