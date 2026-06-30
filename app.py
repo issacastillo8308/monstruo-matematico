@@ -13,7 +13,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- MOTOR DE JUEGO CON TU FIRMA OFICIAL ---
+# --- MOTOR DE JUEGO CON BOTÓN OFICIAL DE FACEBOOK ---
 juego_html = """
 <!DOCTYPE html>
 <html lang="es">
@@ -121,18 +121,48 @@ juego_html = """
         .correcto-impacto { background: #2ecc71 !important; box-shadow: 0 0 20px #2ecc71 !important; }
         .incorrecto-impacto { background: #e74c3c !important; box-shadow: 0 0 20px #e74c3c !important; }
 
-        /* Estilo para tus créditos actualizados */
-        .creditos-autora {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #7f7f99;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+        /* --- BOTÓN PREMIUM DE SÍGUEME EN FACEBOOK --- */
+        .fb-container {
+            margin-top: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .creditos-autora span {
-            color: #00ffcc;
+        .btn-fb-sigueme {
+            display: inline-flex;
+            align-items: center;
+            background: #1877f2;
+            color: white !important;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 14px;
             font-weight: bold;
-            text-shadow: 0 0 5px rgba(0, 255, 204, 0.4);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 2px solid white;
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-fb-sigueme:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(24, 119, 242, 0.6);
+        }
+        /* Icono de FB oficial en SVG */
+        .fb-icon {
+            width: 20px;
+            height: 20px;
+            fill: white;
+            margin-right: 10px;
+        }
+        .text-neon-fb {
+            color: #00ffcc;
+            margin-left: 5px;
+            animation: pulse 1.2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; text-shadow: 0 0 2px #00ffcc; }
+            50% { opacity: 1; text-shadow: 0 0 8px #00ffcc; }
         }
 
         .game-over-screen {
@@ -202,9 +232,13 @@ juego_html = """
             </div>
         </div>
 
-        <!-- AQUÍ SE MUESTRAN TUS NUEVOS CRÉDITOS OFICIALES -->
-        <div class="creditos-autora">
-            Creado con 💜 por <span>Profa. Issa Castillo</span>
+        <div class="fb-container">
+            <a href="https://www.facebook.com/share/1F44VdrjnF/" target="_blank" class="btn-fb-sigueme">
+                <svg class="fb-icon" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+                Profa. Issa Castillo <span class="text-neon-fb">¡Sígueme! 👍</span>
+            </a>
         </div>
     </div>
 
@@ -318,7 +352,6 @@ juego_html = """
             }
         }
 
-        // --- LÓGICA ---
         function generarReto() {
             let n1 = Math.floor(Math.random() * 10) + 1;
             let n2 = Math.floor(Math.random() * 10) + 1;
@@ -379,4 +412,4 @@ juego_html = """
 </html>
 """
 
-st.components.v1.html(juego_html, height=580, scrolling=False)
+st.components.v1.html(juego_html, height=590, scrolling=False)
